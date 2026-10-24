@@ -17,11 +17,10 @@ jobs:
             fabric: "0.141.3+1.21.11"
     steps:
       - uses: actions/checkout@v4
-      - name: Find project folder
+      - name: Unzip project
         run: |
-          F=$(find . -name settings.gradle -not -path './.git/*' | head -n1)
-          if [ -z "$F" ]; then echo "settings.gradle NOT FOUND in repo"; ls -R; exit 1; fi
-          echo "DIR=$(dirname "$F")" >> $GITHUB_ENV
+          unzip -q "infstock-${{ matrix.mc }}.zip"
+          ls "infstock-${{ matrix.mc }}"
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -30,9 +29,9 @@ jobs:
         with:
           gradle-version: "8.14.3"
       - name: Build ${{ matrix.mc }}
-        working-directory: ${{ env.DIR }}
+        working-directory: infstock-${{ matrix.mc }}
         run: gradle build -Pminecraft_version=${{ matrix.mc }} -Pfabric_version=${{ matrix.fabric }} --no-daemon
       - uses: actions/upload-artifact@v4
         with:
           name: infstock-${{ matrix.mc }}
-          path: ${{ env.DIR }}/build/libs/infstock-*.jar
+          path: infstock-${{ matrix.mc }}/build/libs/infstock-*.jar
