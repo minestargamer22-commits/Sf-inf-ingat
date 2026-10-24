@@ -1,4 +1,5 @@
-name: Build
+name: Build INF Stock (1.21.4 + 1.21.11)
+
 on:
   push:
   workflow_dispatch:
@@ -11,35 +12,21 @@ jobs:
       matrix:
         include:
           - mc: "1.21.4"
-            yarn: "1.21.4+build.8"
-            loader: "0.16.10"
-            api: "0.119.4+1.21.4"
+            fabric: "0.119.4+1.21.4"
           - mc: "1.21.11"
-            yarn: "1.21.11+build.4"
-            loader: "0.18.1"
-            api: "0.141.1+1.21.11"
+            fabric: "0.141.3+1.21.11"
     steps:
       - uses: actions/checkout@v4
-      - name: Unzip source
-        run: |
-          mkdir -p project
-          unzip -o "$(ls *.zip | head -n 1)" -d project
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 21
       - uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: "9.2.0"
-      - name: Build
-        working-directory: project
-        run: >
-          gradle build
-          -Pminecraft_version=${{ matrix.mc }}
-          -Pyarn_mappings=${{ matrix.yarn }}
-          -Ploader_version=${{ matrix.loader }}
-          -Pfabric_version=${{ matrix.api }}
+          gradle-version: "8.14.3"
+      - name: Build ${{ matrix.mc }}
+        run: gradle build -Pminecraft_version=${{ matrix.mc }} -Pfabric_version=${{ matrix.fabric }} --no-daemon
       - uses: actions/upload-artifact@v4
         with:
-          name: infinity-auto-all-${{ matrix.mc }}
-          path: project/build/libs/*.jar
+          name: infstock-${{ matrix.mc }}
+          path: build/libs/infstock-*.jar
